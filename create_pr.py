@@ -1,33 +1,18 @@
 import os
-import subprocess
-import argparse
 from dotenv import load_dotenv
 from google import genai  # type: ignore
 import inquirer  # type: ignore
-from google.genai import types  # type: ignore
+from utils.llm_utils import generate_title_and_description
+from utils.pr_utils import create_pr
+from utils.print_utils import (
+    red_print,
+    blue_print,
+)
+from utils.cli import create_parser
+from utils.git_utils import get_git_branches, get_git_diff
 
 load_dotenv(dotenv_path=".env")
 
-def red_print(text: str) -> None:
-    print(f"\033[91m{text}\033[0m")
-
-def green_print(text: str) -> None:
-    print(f"\033[92m{text}\033[0m")
-
-def yellow_print(text: str) -> None:
-    print(f"\033[93m{text}\033[0m")
-
-def blue_print(text: str) -> None:
-    print(f"\033[94m{text}\033[0m")
-
-def magenta_print(text: str) -> None:
-    print(f"\033[95m{text}\033[0m")
-
-def cyan_print(text: str) -> None:
-    print(f"\033[96m{text}\033[0m")
-
-def white_print(text: str) -> None:
-    print(f"\033[97m{text}\033[0m")
 
 # Get the Gemini API key from the environment variables
 gemini_api_key = os.getenv("LLM_KEY")
@@ -38,91 +23,8 @@ if not gemini_api_key:
 client = genai.Client(api_key=gemini_api_key)
 
 
-def get_git_diff(base_branch: str, current_branch: str) -> str:
-    """Gets the diff between two git branches.
-
-    Args:
-        base_branch: The base branch.
-        current_branch: The current branch.
-
-    Returns:
-        The diff between the two branches.
-    """
-    try:
-        diff = subprocess.check_output(["git", "diff", base_branch, current_branch]).decode("utf-8")
-        return diff
-    except subprocess.CalledProcessError as e:
-        red_print(f"Error getting git diff: {e}")
-        exit(1)
-
-
-def generate_title_and_description(diff: str) -> tuple[str, str]:
-    """Generates the title and description of the PR using the Gemini AI model.
-
-    Args:
-        diff: The diff between the two branches.
-        gemini_api_key: The Gemini API key.
-
-    Returns:
-        A tuple containing the title and description of the PR.
-    """
-
-    # Generate the description of the PR
-    prompt_description = f"Describe the following code changes:\n{diff}"
-    response_description = client.models.generate_content(model="gemini-2.0-flash", contents=[prompt_description])
-    description = response_description.text
-
-    # Generate the title of the PR
-    prompt_title = f"Generate a concise title for the following code changes:\n{diff}"
-    response_title = client.models.generate_content(
-        model="gemini-2.0-flash",
-        contents=[prompt_title],
-        config=types.GenerateContentConfig(
-            system_instruction="Your only output should be the title of the PR. Do not give any other information nor multiple choices."
-        ),
-    )
-    title = response_title.text
-
-    return title, description
-
-
-def create_pr(title: str, description: str, current_branch: str, base_branch: str) -> None:
-    """Creates the PR using the gh command.
-
-    Args:
-        title: The title of the PR.
-        description: The description of the PR.
-        current_branch: The current branch.
-        base_branch: The base branch.
-    """
-    # branches names may have "origin/" prefix, we must remove it
-    current_branch = current_branch.replace("origin/", "")
-    base_branch = base_branch.replace("origin/", "")
-
-    description = description.replace("'", "'\\''")
-    command = f"gh pr create --title '{title}' --body '{description}' --head {current_branch} --base {base_branch}"
-    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    _, error = process.communicate()
-
-    # Check if the PR was created successfully
-    if process.returncode == 0:
-        green_print("PR created successfully!")
-        # Extract the PR URL from the output
-        pr_url = subprocess.check_output("gh pr view --json url -q .url", shell=True).decode("utf-8").strip()
-        blue_print(f"PR URL: {pr_url}")
-    else:
-        red_print("Failed to create PR.")
-        red_print(f"Error: {error.decode('utf-8')}")
-        exit(1)
-
-
 def main():
-    # Create the argument parser
-    parser = argparse.ArgumentParser(description="Create a PR with automatically generated description and title.")
-    parser.add_argument("--base_branch", required=False, help="The base branch.")
-    parser.add_argument("--current_branch", required=False, help="The current branch.")
-    parser.add_argument("--title", required=False, help="Optional title for the PR.")
-    parser.add_argument("--interactive", action="store_true", help="Run in interactive mode.")
+    parser = create_parser()
 
     # Parse the arguments
     args = parser.parse_args()
@@ -216,21 +118,6 @@ def main():
 
     # Create the PR
     create_pr(title, description, current_branch, base_branch)
-
-
-def get_git_branches():
-    """Gets the list of remote git branches.
-
-    Returns:
-        A list of remote git branches.
-    """
-    try:
-        branches = subprocess.check_output(["git", "branch", "-r"]).decode("utf-8").splitlines()
-        branches = [branch.strip() for branch in branches]
-        return branches
-    except subprocess.CalledProcessError as e:
-        red_print(f"Error getting git branches: {e}")
-        exit(1)
 
 
 if __name__ == "__main__":
