@@ -120,6 +120,10 @@ def main():
         current_branch = args.current_branch
         title = args.title if args.title else None
 
+    if not base_branch or not current_branch:
+        print("Error: Both base_branch and current_branch must be specified.")
+        exit(1)
+
     # Get the git diff
     diff = get_git_diff(base_branch, current_branch)
 
