@@ -30,7 +30,7 @@ def get_git_diff(base_branch: str, current_branch: str) -> str:
         return diff
     except subprocess.CalledProcessError as e:
         print(f"Error getting git diff: {e}")
-        return ""
+        exit(1)
 
 
 def generate_title_and_description(diff: str) -> tuple[str, str]:
@@ -73,7 +73,7 @@ def create_pr(title: str, description: str, current_branch: str, base_branch: st
     description = description.replace("'", "'\\''")
     command = f"gh pr create --title '{title}' --body '{description}' --head {current_branch} --base {base_branch}"
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    output, error = process.communicate()
+    _, error = process.communicate()
 
     # Check if the PR was created successfully
     if process.returncode == 0:
@@ -84,6 +84,7 @@ def create_pr(title: str, description: str, current_branch: str, base_branch: st
     else:
         print("Failed to create PR.")
         print(f"Error: {error.decode('utf-8')}")
+        exit(1)
 
 
 def main():
