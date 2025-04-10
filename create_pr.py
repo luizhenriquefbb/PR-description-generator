@@ -73,7 +73,7 @@ def create_pr(title: str, description: str, current_branch: str, base_branch: st
     description = description.replace("'", "'\\''")
     command = f"gh pr create --title '{title}' --body '{description}' --head {current_branch} --base {base_branch}"
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    output, error = process.communicate()
+    _, error = process.communicate()
 
     # Check if the PR was created successfully
     if process.returncode == 0:
