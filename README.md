@@ -16,5 +16,5 @@ This script automates the process of creating a pull request (PR) on GitHub with
 2.  Create a `.env` file in the root directory and add your Gemini API key as `LLM_KEY`.
 3.  Install the dependencies using the command `pip install -r requirements.txt`.
 4.  Authenticate with GitHub CLI using the command `gh auth login`.
-5.  Run the script using the command `python create_pr.py --base_branch <base_branch> --current_branch <current_branch> --title "<optional title>"`.
+5.  Run the script using the command `python create_pr.py --base_branch <base_branch> --current_branch <current_branch> --title "<optional title>"`. To run the script in interactive mode, use the command `python create_pr.py --interactive`.
 6.  The script will then generate a title and description for the PR using the Gemini AI model and create the PR.
