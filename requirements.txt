@@ -2,3 +2,4 @@ google-genai
 mypy
 types-requests
 dotenv
+inquirer

@@ -3,6 +3,7 @@ import subprocess
 import argparse
 from google import genai  # type: ignore
 from dotenv import load_dotenv
+import inquirer  # type: ignore
 
 load_dotenv()
 
@@ -90,29 +91,61 @@ def create_pr(title: str, description: str, current_branch: str, base_branch: st
 def main():
     # Create the argument parser
     parser = argparse.ArgumentParser(description="Create a PR with automatically generated description and title.")
-    parser.add_argument("--base_branch", required=True, help="The base branch.")
-    parser.add_argument("--current_branch", required=True, help="The current branch.")
+    parser.add_argument("--base_branch", required=False, help="The base branch.")
+    parser.add_argument("--current_branch", required=False, help="The current branch.")
     parser.add_argument("--title", required=False, help="Optional title for the PR.")
+    parser.add_argument("--interactive", action="store_true", help="Run in interactive mode.")
 
     # Parse the arguments
     args = parser.parse_args()
 
-    # Get the base branch and the current branch from the arguments
-    base_branch = args.base_branch
-    current_branch = args.current_branch
+    if args.interactive:
+        # Interactive mode
+        questions = [
+            inquirer.List("base_branch", message="Choose the base branch:", choices=get_git_branches()),
+            inquirer.List("current_branch", message="Choose the current branch:", choices=get_git_branches()),
+            inquirer.Text("title", message="Enter the title for the PR:"),
+        ]
+        answers = inquirer.prompt(questions)
+        if answers:
+            base_branch = answers["base_branch"]
+            current_branch = answers["current_branch"]
+            title = answers["title"]
+        else:
+            print("PR creation cancelled.")
+            exit(0)
+    else:
+        # Get the base branch and the current branch from the arguments
+        base_branch = args.base_branch
+        current_branch = args.current_branch
+        title = args.title if args.title else None
 
     # Get the git diff
     diff = get_git_diff(base_branch, current_branch)
 
     # Generate the title and description of the PR
-    if args.title:
-        title = args.title
+    if title:
         description = generate_title_and_description(diff)[1]
     else:
         title, description = generate_title_and_description(diff)
 
     # Create the PR
     create_pr(title, description, current_branch, base_branch)
+
+
+def get_git_branches():
+    """Gets the list of remote git branches.
+
+    Returns:
+        A list of remote git branches.
+    """
+    try:
+        branches = subprocess.check_output(["git", "branch", "-r"]).decode("utf-8").splitlines()
+        branches = [branch.strip() for branch in branches]
+        return branches
+    except subprocess.CalledProcessError as e:
+        print(f"Error getting git branches: {e}")
+        exit(1)
 
 
 if __name__ == "__main__":

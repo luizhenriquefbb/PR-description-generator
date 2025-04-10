@@ -10,12 +10,12 @@
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
-            "args": [
-                "--base_branch",
-                "origin/main",
-                "--current_branch",
-                "test",
-            ],
+            // "args": [
+            //     "--base_branch",
+            //     "origin/main",
+            //     "--current_branch",
+            //     "test",
+            // ],
         }
     ]
 }
