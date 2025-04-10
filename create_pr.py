@@ -2,6 +2,17 @@ import os
 import subprocess
 import argparse
 from google import genai  # type: ignore
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Get the Gemini API key from the environment variables
+gemini_api_key = os.getenv("LLM_KEY")
+if not gemini_api_key:
+    print("Error: LLM_KEY environment variable not set.")
+    exit(1)
+
+client = genai.Client(api_key=gemini_api_key)
 
 
 def get_git_diff(base_branch: str, current_branch: str) -> str:
@@ -22,7 +33,7 @@ def get_git_diff(base_branch: str, current_branch: str) -> str:
         return ""
 
 
-def generate_title_and_description(diff: str, gemini_api_key: str) -> tuple[str, str]:
+def generate_title_and_description(diff: str) -> tuple[str, str]:
     """Generates the title and description of the PR using the Gemini AI model.
 
     Args:
@@ -32,16 +43,15 @@ def generate_title_and_description(diff: str, gemini_api_key: str) -> tuple[str,
     Returns:
         A tuple containing the title and description of the PR.
     """
-    client = genai.Client(api_key=gemini_api_key)
 
     # Generate the description of the PR
     prompt_description = f"Describe the following code changes:\n{diff}"
-    response_description = client.models.generate_content(model="gemini-2.0-flash", contents=prompt_description)
+    response_description = client.models.generate_content(model="gemini-2.0-flash", contents=[prompt_description])
     description = response_description.text
 
     # Generate the title of the PR
     prompt_title = f"Generate a concise title for the following code changes:\n{diff}"
-    response_title = client.models.generate_content(model="gemini-2.0-flash", contents=prompt_title)
+    response_title = client.models.generate_content(model="gemini-2.0-flash", contents=[prompt_title])
     title = response_title.text
 
     return title, description
@@ -60,6 +70,7 @@ def create_pr(title: str, description: str, current_branch: str, base_branch: st
     current_branch = current_branch.replace("origin/", "")
     base_branch = base_branch.replace("origin/", "")
 
+    description = description.replace("'", "'\\''")
     command = f"gh pr create --title '{title}' --body '{description}' --head {current_branch} --base {base_branch}"
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     output, error = process.communicate()
@@ -92,18 +103,12 @@ def main():
     # Get the git diff
     diff = get_git_diff(base_branch, current_branch)
 
-    # Get the Gemini API key from the environment variables
-    gemini_api_key = os.getenv("LLM_KEY")
-    if not gemini_api_key:
-        print("Error: LLM_KEY environment variable not set.")
-        return
-
     # Generate the title and description of the PR
     if args.title:
         title = args.title
-        description = generate_title_and_description(diff, gemini_api_key)[1]
+        description = generate_title_and_description(diff)[1]
     else:
-        title, description = generate_title_and_description(diff, gemini_api_key)
+        title, description = generate_title_and_description(diff)
 
     # Create the PR
     create_pr(title, description, current_branch, base_branch)
