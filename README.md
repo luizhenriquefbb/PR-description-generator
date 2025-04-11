@@ -7,6 +7,7 @@ This script automates the process of creating a pull request (PR) on GitHub with
 ## Prerequisites
 
 1.  Install the dependencies from the `requirements.txt` file using the command `pip install -r requirements.txt`.
+2.  Install the Copilot CLI using the command `gh extension install github/gh-copilot`.
 2.  Install the GitHub CLI. You can install the GitHub CLI from [https://cli.github.com/](https://cli.github.com/).
 3.  Add the Gemini API key to the `.env` file as `LLM_KEY`. You can obtain a Gemini API key from [https://makersuite.google.com/app/apikey](https://makersuite.google.com/app/apikey).
 
@@ -17,4 +18,7 @@ This script automates the process of creating a pull request (PR) on GitHub with
 3.  Install the dependencies using the command `pip install -r requirements.txt`.
 4.  Authenticate with GitHub CLI using the command `gh auth login`.
 5.  Run the script using the command `python create_pr.py --base_branch <base_branch> --current_branch <current_branch> --title "<optional title>"`. To run the script in interactive mode, use the command `python create_pr.py --interactive`.
-6.  The script will then generate a title and description for the PR using the Gemini AI model and create the PR.
+6.  Use the `--llm` flag to choose between Gemini and Copilot. For example:
+    - To use Gemini: `python create_pr.py --llm gemini`
+    - To use Copilot: `python create_pr.py --llm copilot`
+7.  The script will then generate a title and description for the PR using the selected LLM and create the PR.
