@@ -3,6 +3,8 @@ from google import genai  # type: ignore
 from google.genai import types  # type: ignore
 from dotenv import load_dotenv
 
+from utils.print_utils import red_print
+
 load_dotenv(dotenv_path=".env")
 
 # Get the Gemini API key from the environment variables
@@ -23,21 +25,28 @@ def generate_title_and_description(diff: str) -> tuple[str, str]:
     Returns:
         A tuple containing the title and description of the PR.
     """
+    try:
+        # Generate the description of the PR
+        prompt_description = f"Describe the following code changes:\n{diff}"
+        response_description = client.models.generate_content(model="gemini-2.0-flash", contents=[prompt_description])
+        description = response_description.text
+    except Exception as e:
+        red_print(f"Error generating description: {e}")
+        exit(1)
 
-    # Generate the description of the PR
-    prompt_description = f"Describe the following code changes:\n{diff}"
-    response_description = client.models.generate_content(model="gemini-2.0-flash", contents=[prompt_description])
-    description = response_description.text
-
-    # Generate the title of the PR
-    prompt_title = f"Generate a concise title for the following code changes:\n{diff}"
-    response_title = client.models.generate_content(
-        model="gemini-2.0-flash",
-        contents=[prompt_title],
-        config=types.GenerateContentConfig(
-            system_instruction="Your only output should be the title of the PR. Do not give any other information nor multiple choices."
-        ),
-    )
-    title = response_title.text
+    try:
+        # Generate the title of the PR
+        prompt_title = f"Generate a concise title for the following code changes:\n{diff}"
+        response_title = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=[prompt_title],
+            config=types.GenerateContentConfig(
+                system_instruction="Your only output should be the title of the PR. Do not give any other information nor multiple choices."
+            ),
+        )
+        title = response_title.text
+    except Exception as e:
+        red_print(f"Error generating title: {e}")
+        exit(1)
 
     return title, description
