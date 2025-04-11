@@ -1,6 +1,6 @@
 import subprocess
 
-def get_git_diff(base_branch: str, current_branch: str) -> str:
+def get_git_diff(base_branch: str, current_branch: str, repo_path: str = ".") -> str:
     """Gets the diff between two git branches.
 
     Args:
@@ -11,21 +11,21 @@ def get_git_diff(base_branch: str, current_branch: str) -> str:
         The diff between the two branches.
     """
     try:
-        diff = subprocess.check_output(["git", "diff", base_branch, current_branch]).decode("utf-8")
+        diff = subprocess.check_output(["git", "-C", repo_path, "diff", base_branch, current_branch]).decode("utf-8")
         return diff
     except subprocess.CalledProcessError as e:
         print(f"Error getting git diff: {e}")
         exit(1)
 
 
-def get_git_branches():
+def get_git_branches(repo_path: str = "."):
     """Gets the list of remote git branches.
 
     Returns:
         A list of remote git branches.
     """
     try:
-        branches = subprocess.check_output(["git", "branch", "-r"]).decode("utf-8").splitlines()
+        branches = subprocess.check_output(["git", "-C", repo_path, "branch", "-r"]).decode("utf-8").splitlines()
         branches = [branch.strip() for branch in branches]
         return branches
     except subprocess.CalledProcessError as e:

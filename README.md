@@ -36,7 +36,13 @@ This script automates the process of creating a pull request (PR) on GitHub with
 
 2. Run the container:
    ```bash
-   docker run -it --env-file example.env -v $(pwd):/app create-pr
+   docker run -it \
+    --env-file .env \
+    -v $(pwd):/app \
+    -v <path to your project>:/git_repo \
+    create-pr \
+    --interactive \
+    --repo-path /git_repo
    ```
 
 ## Running locally
