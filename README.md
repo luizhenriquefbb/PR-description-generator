@@ -12,6 +12,20 @@ This script automates the process of creating a pull request (PR) on GitHub with
 
 ## How to Use
 
+## Running with Docker
+
+1. Build the Docker image:
+   ```bash
+   docker build -t create-pr .
+   ```
+
+2. Run the container:
+   ```bash
+   docker run -it --env-file example.env create-pr
+   ```
+
+3. Ensure you have the `.env` file properly configured with your `LLM_KEY` and other necessary environment variables.
+
 1.  Clone the repository.
 2.  Create a `.env` file in the root directory and add your Gemini API key as `LLM_KEY`.
 3.  Install the dependencies using the command `pip install -r requirements.txt`.
