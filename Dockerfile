@@ -15,5 +15,8 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir --requirement requirements.txt
 
-# Set the default command to run the application
-CMD ["python", "create_pr.py", "--interactive"]
+# Set the entrypoint to run the application
+ENTRYPOINT ["python", "create_pr.py"]
+
+# Set the default command arguments
+CMD ["--interactive"]

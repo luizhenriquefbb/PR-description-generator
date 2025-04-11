@@ -24,16 +24,17 @@ client = genai.Client(api_key=gemini_api_key)
 
 
 def main():
-    parser = create_parser()
+    args = create_parser()
 
-    # Parse the arguments
-    args = parser.parse_args()
+    repo_path = args.repo_path if args.repo_path else "."
+
+    os.chdir(repo_path)
 
     if args.interactive:
         # Interactive mode
         questions = [
-            inquirer.List("base_branch", message="Choose the base branch:", choices=get_git_branches()),
-            inquirer.List("current_branch", message="Choose the current branch:", choices=get_git_branches()),
+            inquirer.List("base_branch", message="Choose the base branch:", choices=get_git_branches(repo_path)),
+            inquirer.List("current_branch", message="Choose the current branch:", choices=get_git_branches(repo_path)),
             inquirer.Text("title", message="Enter the title for the PR:"),
         ]
         answers = inquirer.prompt(questions)
@@ -55,7 +56,7 @@ def main():
         exit(1)
 
     # Get the git diff
-    diff = get_git_diff(base_branch, current_branch)
+    diff = get_git_diff(base_branch, current_branch, repo_path)
 
     # Generate the title and description of the PR
     if title:
