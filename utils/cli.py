@@ -17,7 +17,7 @@ def create_parser() -> Args:
     parser.add_argument("--current_branch", required=False, help="The current branch.")
     parser.add_argument("--title", required=False, help="Optional title for the PR.")
     parser.add_argument("--interactive", action="store_true", help="Run in interactive mode.")
-    parser.add_argument("--repo-path", help="Path to the target Git repository", default=".")
+    parser.add_argument("--repo-path", help="Path to the target Git repository", required=True)
 
     # Parse the arguments
     args = parser.parse_args()

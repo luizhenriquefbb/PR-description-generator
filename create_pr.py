@@ -26,12 +26,22 @@ client = genai.Client(api_key=gemini_api_key)
 def main():
     args = create_parser()
 
-    repo_path = args.repo_path if args.repo_path else "."
+    repo_path = args.repo_path
+
+    # make sure the repo path is valid
+    if not os.path.exists(repo_path):
+        red_print(f"Error: The specified path '{repo_path}' does not exist.")
+        exit(1)
+    if not os.path.isdir(repo_path):
+        red_print(f"Error: The specified path '{repo_path}' is not a directory.")
+        exit(1)
+    if not os.path.exists(os.path.join(repo_path, ".git")):
+        red_print(f"Error: The specified path '{repo_path}' is not a git repository.")
+        exit(1)
 
     os.chdir(repo_path)
 
     if args.interactive:
-        # Interactive mode
         questions = [
             inquirer.List("base_branch", message="Choose the base branch:", choices=get_git_branches(repo_path)),
             inquirer.List("current_branch", message="Choose the current branch:", choices=get_git_branches(repo_path)),
@@ -62,10 +72,14 @@ def main():
     if title:
         description = generate_title_and_description(diff)[1]
     else:
-        title, description = generate_title_and_description(diff)
+        try:
+            title, description = generate_title_and_description(diff)
+        except Exception as e:
+            red_print(f"Error generating title and description: {e}")
+            exit(1)
 
     # clear terminal
-    os.system("clear")
+    os.system("cls" if os.name == "nt" else "clear")
 
     # Display the title and description
     blue_print("Generated title:")
