@@ -26,7 +26,7 @@ client = genai.Client(api_key=gemini_api_key)
 def main():
     args = create_parser()
 
-    repo_path = args.repo_path
+    repo_path = "/git_repo"
 
     # make sure the repo path is valid
     if not os.path.exists(repo_path):

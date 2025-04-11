@@ -41,8 +41,7 @@ This script automates the process of creating a pull request (PR) on GitHub with
     -v $(pwd):/app \
     -v <path to your project>:/git_repo \
     create-pr \
-    --interactive \
-    --repo-path /git_repo
+    --interactive
    ```
 
 ## Running locally
@@ -58,14 +57,12 @@ This script automates the process of creating a pull request (PR) on GitHub with
          --base_branch <base_branch> \
          --current_branch <current_branch> \
          --title "<optional title>"
-         --repo-path <path to your project> \
    ```
 
    5.1 To run the script in interactive mode, use the command
 
    ```bash
    python create_pr.py \
-         --interactive \
-         --repo-path <path to your project>
+         --interactive
    ```
 6.  The script will then generate a title and description for the PR using the Gemini AI model and create the PR.
