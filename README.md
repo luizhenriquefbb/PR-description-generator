@@ -1,3 +1,7 @@
+<div align="center">
+   <img src="./assets/readme-logo.png" alt="logo" width="300">
+</div>
+
 # Create PR with Automatically Generated Description
 
 **Note: This project was created for study purposes.**
