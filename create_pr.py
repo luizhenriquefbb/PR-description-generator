@@ -127,7 +127,7 @@ def main():
             if answers:
                 title = answers["title"]
         elif action == "edit_description":
-            questions = [inquirer.Text("description", message="Enter the new description:")]
+            questions = [inquirer.Editor("description", message="Edit the description:", default=description)]
             answers = inquirer.prompt(questions)
             if answers:
                 description = answers["description"]
@@ -140,7 +140,8 @@ def main():
             red_print("Title editing cancelled.")
 
     # Create the PR
-    create_pr(title, description, current_branch, base_branch)
+    # create_pr(title, description, current_branch, base_branch)
+    blue_print("Creating PR...")
 
 
 if __name__ == "__main__":
