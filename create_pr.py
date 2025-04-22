@@ -9,6 +9,7 @@ from utils.print_utils import (
     blue_print,
 )
 from utils.cli import create_parser
+import glob
 from utils.git_utils import get_git_branches, get_git_diff
 
 load_dotenv(dotenv_path=".env")
@@ -68,12 +69,19 @@ def main():
     # Get the git diff
     diff = get_git_diff(base_branch, current_branch, repo_path)
 
+    # Load PR description templates from the templates folder
+    template_dir = "templates"
+    templates = []
+    for template_file in glob.glob(os.path.join(template_dir, "*.md")):
+        with open(template_file, "r") as f:
+            templates.append(f.read())
+
     # Generate the title and description of the PR
     if title:
-        description = generate_title_and_description(diff)[1]
+        description = generate_title_and_description(diff, templates=templates)[1]
     else:
         try:
-            title, description = generate_title_and_description(diff)
+            title, description = generate_title_and_description(diff, templates=templates)
         except Exception as e:
             red_print(f"Error generating title and description: {e}")
             exit(1)
