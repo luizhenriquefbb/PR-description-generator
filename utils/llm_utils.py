@@ -2,7 +2,7 @@ import os
 from google import genai  # type: ignore
 from google.genai import types  # type: ignore
 from dotenv import load_dotenv
-
+from typing import List, Optional
 from utils.print_utils import red_print
 
 load_dotenv(dotenv_path=".env")
@@ -15,38 +15,80 @@ if not gemini_api_key:
 
 client = genai.Client(api_key=gemini_api_key)
 
-def generate_title_and_description(diff: str) -> tuple[str, str]:
+model_agent = "gemini-2.0-flash"  # The model agent to use for generating the title and description
+
+
+def generate_title_and_description(diff: str, templates: List[str] = None) -> tuple[str, str]:
     """Generates the title and description of the PR using the Gemini AI model.
 
     Args:
         diff: The diff between the two branches.
-        gemini_api_key: The Gemini API key.
+        templates: Optional list of templates to guide the description generation.
 
     Returns:
         A tuple containing the title and description of the PR.
     """
+    title = generate_title(diff)
+    description = generate_description(diff, templates)
+
+    return title, description
+
+
+def generate_description(diff: str, templates: Optional[List[str]] = None) -> str:
+    """Generates the description of the PR using the Gemini AI model."""
+
+    prompt_description = f"Generate a detailed description of the following code changes:\n{diff}"
+    description_output = (
+        "Your only output should be the description of the PR. Do not give any other information nor multiple choices."
+    )
+    if templates:
+        template_text = [f"{template}" for template in templates if template.strip()]
+
+        try:
+            response_description = client.models.generate_content(
+                model=model_agent,
+                contents=[prompt_description],
+                config=types.GenerateContentConfig(
+                    system_instruction=(
+                        "Follow the templates below to generate the description of the PR:\n"
+                        + "\n--------\n".join(template_text)
+                        + "\n\nMake sure to use the template as a guide and not as a strict rule. "
+                        + "You can modify it to fit the context of the PR. "
+                        + "If the template is not relevant to the PR, just ignore it and generate a description based on the code changes.\n\n"
+                        + description_output
+                    )
+                ),
+            )
+            return response_description.text
+        except Exception as e:
+            red_print(f"Error generating description: {e}")
+            exit(1)
+
+    else:
+        try:
+            response_description = client.models.generate_content(
+                model=model_agent,
+                contents=[prompt_description],
+                config=types.GenerateContentConfig(system_instruction=description_output),
+            )
+            return response_description.text
+        except Exception as e:
+            red_print(f"Error generating description: {e}")
+            exit(1)
+
+
+def generate_title(diff: str) -> str:
     try:
         # Generate the description of the PR
         prompt_description = f"Describe the following code changes:\n{diff}"
-        response_description = client.models.generate_content(model="gemini-2.0-flash", contents=[prompt_description])
-        description = response_description.text
-    except Exception as e:
-        red_print(f"Error generating description: {e}")
-        exit(1)
-
-    try:
-        # Generate the title of the PR
-        prompt_title = f"Generate a concise title for the following code changes:\n{diff}"
-        response_title = client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=[prompt_title],
+        response_description = client.models.generate_content(
+            model=model_agent,
+            contents=[prompt_description],
             config=types.GenerateContentConfig(
                 system_instruction="Your only output should be the title of the PR. Do not give any other information nor multiple choices."
             ),
         )
-        title = response_title.text
+        return response_description.text
     except Exception as e:
         red_print(f"Error generating title: {e}")
         exit(1)
-
-    return title, description
