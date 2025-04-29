@@ -1,9 +1,10 @@
 import os
 from dotenv import load_dotenv
-from google import genai  # type: ignore
-import inquirer  # type: ignore
+from google import genai
+import inquirer
+from prompt_toolkit import prompt
+from prompt_toolkit.completion import FuzzyWordCompleter
 from utils.llm_utils import generate_title_and_description
-from utils.pr_utils import create_pr
 from utils.print_utils import (
     red_print,
     blue_print,
@@ -43,19 +44,21 @@ def main():
     os.chdir(repo_path)
 
     if args.interactive:
-        questions = [
-            inquirer.List("base_branch", message="Choose the base branch:", choices=get_git_branches(repo_path)),
-            inquirer.List("current_branch", message="Choose the current branch:", choices=get_git_branches(repo_path)),
-            inquirer.Text("title", message="Enter the title for the PR:"),
-        ]
-        answers = inquirer.prompt(questions)
-        if answers:
-            base_branch = answers["base_branch"]
-            current_branch = answers["current_branch"]
-            title = answers["title"]
-        else:
-            red_print("PR creation cancelled.")
-            exit(0)
+        # Get the list of branches
+        branches = get_git_branches(repo_path)
+
+        # Create a fuzzy completer for branch names
+        branch_completer = FuzzyWordCompleter(branches)
+
+        # Prompt for base branch
+        base_branch = prompt("Choose the base branch: ", completer=branch_completer)
+
+        # Prompt for current branch
+        current_branch = prompt("Choose the current branch: ", completer=branch_completer)
+
+        # Prompt for PR title
+        title = prompt("Enter the title for the PR: ")
+
     else:
         # Get the base branch and the current branch from the arguments
         base_branch = args.base_branch

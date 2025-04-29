@@ -3,3 +3,4 @@ mypy
 types-requests
 dotenv
 inquirer
+prompt_toolkit
