@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from google import genai
 import inquirer
 from prompt_toolkit import prompt
-from prompt_toolkit.completion import FuzzyWordCompleter
+from prompt_toolkit.completion import WordCompleter
 from utils.llm_utils import generate_title_and_description
 from utils.print_utils import (
     red_print,
@@ -41,14 +41,18 @@ def main():
         red_print(f"Error: The specified path '{repo_path}' is not a git repository.")
         exit(1)
 
-    os.chdir(repo_path)
+    # os.chdir(repo_path)
 
     if args.interactive:
         # Get the list of branches
         branches = get_git_branches(repo_path)
 
         # Create a fuzzy completer for branch names
-        branch_completer = FuzzyWordCompleter(branches)
+        branch_completer = WordCompleter(
+            branches,
+            ignore_case=True,
+            match_middle=True,
+        )
 
         # Prompt for base branch
         base_branch = prompt("Choose the base branch: ", completer=branch_completer)
@@ -90,7 +94,7 @@ def main():
             exit(1)
 
     # clear terminal
-    os.system("cls" if os.name == "nt" else "clear")
+    # os.system("cls" if os.name == "nt" else "clear")
 
     # Display the title and description
     blue_print("Generated title:")

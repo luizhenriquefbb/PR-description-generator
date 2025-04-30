@@ -3,7 +3,7 @@ from google import genai  # type: ignore
 from google.genai import types  # type: ignore
 from dotenv import load_dotenv
 from typing import List, Optional
-from utils.print_utils import red_print
+from utils.print_utils import blue_print, red_print
 
 load_dotenv(dotenv_path=".env")
 
@@ -42,6 +42,7 @@ def generate_description(diff: str, templates: Optional[List[str]] = None) -> st
         "Your only output should be the description of the PR. Do not give any other information nor multiple choices."
     )
     if templates:
+        blue_print(f"Using {len(templates)} templates to generate the description of the PR.")
         template_text = [f"{template}" for template in templates if template.strip()]
 
         try:
@@ -54,7 +55,6 @@ def generate_description(diff: str, templates: Optional[List[str]] = None) -> st
                         + "\n--------\n".join(template_text)
                         + "\n\nMake sure to use the template as a guide and not as a strict rule. "
                         + "You can modify it to fit the context of the PR. "
-                        + "If the template is not relevant to the PR, just ignore it and generate a description based on the code changes.\n\n"
                         + description_output
                     )
                 ),
