@@ -1,0 +1,3 @@
+Follow the template from templates/example.md to generate the description of the PR (diff in manual_prompt/diff.txt)
+Make sure to use the template as a guide and not as a strict rule.
+You can modify it to fit the context of the PR.
