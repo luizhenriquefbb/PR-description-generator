@@ -68,39 +68,7 @@ def generate_description(branch_base: str, current_branch: str) -> Optional[str]
     )
 
 
-
-
-
-# ██████╗ ██████╗  ██████╗ ███╗   ███╗██████╗ ████████╗███████╗
-# ██╔══██╗██╔══██╗██╔═══██╗████╗ ████║██╔══██╗╚══██╔══╝██╔════╝
-# ██████╔╝██████╔╝██║   ██║██╔████╔██║██████╔╝   ██║   ███████╗
-# ██╔═══╝ ██╔══██╗██║   ██║██║╚██╔╝██║██╔═══╝    ██║   ╚════██║
-# ██║     ██║  ██║╚██████╔╝██║ ╚═╝ ██║██║        ██║   ███████║
-# ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚═╝     ╚═╝╚═╝        ╚═╝   ╚══════╝
-#
-
-
-@mcp.prompt()
-def get_PR_description(base_branch: str, target_branch: str) -> str:
-    """
-    Description:
-    This function generates a prompt string that instructs to perform the following actions:
-    1. Generate the git diff between the base_branch and the target_branch.
-    2. Create a concise description of the changes made in the target_branch compared to the base_branch.
-
-    Parameters:
-    - base_branch (str): The name of the base branch for comparison.
-    - target_branch (str): The name of the target branch for which the description is to be generated.
-    """
-    return (
-        "Generate the git diff between the following two branches:\n"
-        f"Base branch: {base_branch}\n"
-        f"Target branch: {target_branch}\n"
-        "Then, create a concise description of the changes made in the target branch compared to the base branch.\n"
-    )
-
-
-@mcp.prompt()
+@mcp.tool()
 def generate_commit_message_for_staged_changes() -> Optional[str]:
     """
     Based on the staged files, generates a concise and descriptive commit message.
@@ -133,6 +101,49 @@ def generate_commit_message_for_staged_changes() -> Optional[str]:
         f"Save the commit message in {COMMIT_MESSAGE_FILE}.\n\n"
         f"Staged changes diff:\n{staged_diff}"
     )
+
+
+# ██████╗ ██████╗  ██████╗ ███╗   ███╗██████╗ ████████╗███████╗
+# ██╔══██╗██╔══██╗██╔═══██╗████╗ ████║██╔══██╗╚══██╔══╝██╔════╝
+# ██████╔╝██████╔╝██║   ██║██╔████╔██║██████╔╝   ██║   ███████╗
+# ██╔═══╝ ██╔══██╗██║   ██║██║╚██╔╝██║██╔═══╝    ██║   ╚════██║
+# ██║     ██║  ██║╚██████╔╝██║ ╚═╝ ██║██║        ██║   ███████║
+# ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚═╝     ╚═╝╚═╝        ╚═╝   ╚══════╝
+#
+
+
+@mcp.prompt()
+def get_PR_description(base_branch: str, target_branch: str) -> str:
+    """
+    Description:
+    This function generates a prompt string that instructs to perform the following actions:
+    1. Generate the git diff between the base_branch and the target_branch.
+    2. Create a concise description of the changes made in the target_branch compared to the base_branch.
+
+    Parameters:
+    - base_branch (str): The name of the base branch for comparison.
+    - target_branch (str): The name of the target branch for which the description is to be generated.
+    """
+    return (
+        "Generate the git diff between the following two branches:\n"
+        f"Base branch: {base_branch}\n"
+        f"Target branch: {target_branch}\n"
+        "Then, create a concise description of the changes made in the target branch compared to the base branch.\n"
+    )
+
+@mcp.prompt()
+def get_commit_message_for_staged_changes() -> str:
+    """
+    Description:
+    This function generates a prompt string that instructs to create a concise and descriptive commit message
+    based on the currently staged changes in the git repository. The commit message should follow the style
+    and format of the last 10 commits in the repository.
+    """
+    return (
+        "Based on the currently staged changes in the git repository, generate a concise and descriptive commit message.\n"
+        "The commit message should follow the style and format of the last 10 commits in the repository.\n"
+    )
+
 
 
 if __name__ == "__main__":
