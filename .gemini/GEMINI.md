@@ -1,1 +1,1 @@
-- Always remember to update the @README.md file when necessary
+- Always remember to update the README.md file in the root directory when necessary

@@ -3,7 +3,7 @@
         "my-git-utils": {
             "command": "python",
             "args": [
-                "src/tools.py"
+                "src/main.py"
             ]
         }
     }
