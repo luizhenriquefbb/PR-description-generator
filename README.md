@@ -40,7 +40,7 @@ If you are working within this project's directory, you can configure your agent
         "my-git-utils": {
             "command": "python3",
             "args": [
-                "src/tools.py"
+                "src/main.py"
             ]
         }
     }
@@ -65,7 +65,7 @@ To make the MCP available globally, you can add the configuration to your global
             "my-git-utils": {
                 "command": "python3",
                 "args": [
-                    "/path/to/your/project/src/tools.py"
+                    "/path/to/your/project/src/main.py"
                 ]
             }
         }
@@ -100,3 +100,27 @@ To set up the environment for local development, follow these steps:
     ```
 
 After these steps, your local environment will be set up, and you can run the project.
+
+## MCP Tool Usage Examples
+
+Once the MCP is configured and your Gemini CLI is restarted, you can use the following prompts to interact with the git utility tools:
+
+### Generate a PR Description between two branches
+
+To generate a PR description comparing two branches, use the `get_PR_description` tool:
+
+```
+Generate the git diff between the following two branches:
+Base branch: origin/main
+Target branch: HEAD
+Then, create a concise description of the changes made in the target branch compared to the base branch.
+```
+
+### Generate a Commit Message for Staged Changes
+
+To generate a commit message for your currently staged changes, use the `generate_commit_message_for_staged_changes` tool:
+
+```
+Generate a concise and descriptive commit message for the currently staged changes.
+The commit message should follow the same style and format as the previous commits.
+```
