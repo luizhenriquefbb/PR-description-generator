@@ -8,6 +8,7 @@ from fastmcp import FastMCP
 BASE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..")
 TEMP_DIR = os.path.join(BASE_DIR, "temp")
 COMMIT_MESSAGE_FILE = os.path.join(TEMP_DIR, "commit_message.txt")
+TEMPLATE_EXAMPLE_FILE = os.path.join(BASE_DIR, "templates", "example.md")
 
 
 mcp = FastMCP("My git helpers")
@@ -60,11 +61,11 @@ def generate_description(branch_base: str, current_branch: str) -> Optional[str]
 
     return (
         "Generate a concise description of the following code changes:\n"
+        "Save the description in markdown format in temp/description.md."
+        f"Follow the template of the file @{TEMPLATE_EXAMPLE_FILE}\n"
         "=======\n"
         f"diff is \n{diff}\n"
         "=======\n"
-        "Follow the template of the file @{templates/example.md}\n"
-        "Save the description in markdown format in temp/description.md."
     )
 
 
@@ -124,12 +125,15 @@ def get_PR_description(base_branch: str, target_branch: str) -> str:
     - base_branch (str): The name of the base branch for comparison.
     - target_branch (str): The name of the target branch for which the description is to be generated.
     """
+
     return (
         "Generate the git diff between the following two branches:\n"
         f"Base branch: {base_branch}\n"
         f"Target branch: {target_branch}\n"
-        "Then, create a concise description of the changes made in the target branch compared to the base branch.\n"
+        f"Then, using the content of @{TEMPLATE_EXAMPLE_FILE} as a template, construct a concise description of the "
+        "changes found in the target branch, ensuring the output follows the template's structure and headings.\n"
     )
+
 
 @mcp.prompt()
 def get_commit_message_for_staged_changes() -> str:
@@ -143,7 +147,6 @@ def get_commit_message_for_staged_changes() -> str:
         "Based on the currently staged changes in the git repository, generate a concise and descriptive commit message.\n"
         "The commit message should follow the style and format of the last 10 commits in the repository.\n"
     )
-
 
 
 if __name__ == "__main__":
