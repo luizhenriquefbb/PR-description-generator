@@ -58,7 +58,7 @@ def generate_description(branch_base: str, current_branch: str) -> Optional[str]
     if diff is None:
         return None
 
-    prompt = (
+    return (
         "Generate a concise description of the following code changes:\n"
         "=======\n"
         f"diff is \n{diff}\n"
@@ -67,44 +67,8 @@ def generate_description(branch_base: str, current_branch: str) -> Optional[str]
         "Save the description in markdown format in temp/description.md."
     )
 
-    return prompt
 
 
-@mcp.tool()
-def generate_commit_message() -> Optional[str]:
-    """
-    Based on the staged files, generates a concise and descriptive commit message.
-    This tool will read the last 10 commits to understand pattern of the massages and will replicate it.
-    """
-
-    # run command git diff --staged to get the staged changes
-    try:
-        diff_result = subprocess.run("git diff --staged", shell=True, capture_output=True, text=True, check=True)
-        staged_diff = diff_result.stdout
-    except subprocess.CalledProcessError as e:
-        print(f"Error getting staged diff: {e.stderr}")
-        return None
-
-    # Get the last 10 commit messages
-    try:
-        result = subprocess.run(
-            "git log -n 10 --pretty=format:%s", shell=True, capture_output=True, text=True, check=True
-        )
-        commit_history = result.stdout
-    except subprocess.CalledProcessError as e:
-        print(f"Error getting commit history: {e.stderr}")
-        return None
-
-    prompt = (
-        "Based on the following commit history:\n"
-        f"{commit_history}\n\n"
-        "Generate a concise and descriptive commit message for the currently staged changes.\n"
-        "The commit message should follow the same style and format as the previous commits.\n"
-        f"Save the commit message in {COMMIT_MESSAGE_FILE}.\n\n"
-        f"Staged changes diff:\n{staged_diff}"
-    )
-
-    return prompt
 
 
 # ██████╗ ██████╗  ██████╗ ███╗   ███╗██████╗ ████████╗███████╗
@@ -137,12 +101,38 @@ def get_PR_description(base_branch: str, target_branch: str) -> str:
 
 
 @mcp.prompt()
-def describe_staged_changes() -> str:
+def generate_commit_message_for_staged_changes() -> Optional[str]:
     """
-    Generates a prompt to create a description of code changes based on a diff file.
-    The diff file is expected to be located in the temporary directory.
+    Based on the staged files, generates a concise and descriptive commit message.
+    This tool will read the last 10 commits to understand pattern of the massages and will replicate it.
     """
-    return "run `generate_commit_message` tool."
+
+    # run command git diff --staged to get the staged changes
+    try:
+        diff_result = subprocess.run("git diff --staged", shell=True, capture_output=True, text=True, check=True)
+        staged_diff = diff_result.stdout
+    except subprocess.CalledProcessError as e:
+        print(f"Error getting staged diff: {e.stderr}")
+        return None
+
+    # Get the last 10 commit messages
+    try:
+        result = subprocess.run(
+            "git log -n 10 --pretty=format:%s", shell=True, capture_output=True, text=True, check=True
+        )
+        commit_history = result.stdout
+    except subprocess.CalledProcessError as e:
+        print(f"Error getting commit history: {e.stderr}")
+        return None
+
+    return (
+        "Based on the following commit history:\n"
+        f"{commit_history}\n\n"
+        "Generate a concise and descriptive commit message for the currently staged changes.\n"
+        "The commit message should follow the same style and format as the previous commits.\n"
+        f"Save the commit message in {COMMIT_MESSAGE_FILE}.\n\n"
+        f"Staged changes diff:\n{staged_diff}"
+    )
 
 
 if __name__ == "__main__":
