@@ -10,18 +10,70 @@ This MCP automates the process of creating a pull request (PR) on GitHub with a 
 
 ## Prerequisites
 
-1. Gemini CLI
+1.  **Gemini CLI**
 
-   TODO: add instrunctions or link to install gemini cli
+    To install the Gemini CLI, follow these steps:
 
-2.  Install the GitHub CLI. You can install the GitHub CLI from [https://cli.github.com/](https://cli.github.com/).
+    1.  **Prerequisite:** Ensure you have Node.js version 18 or higher installed on your system.
+    2.  **Install Gemini CLI:** Open your terminal or command prompt and run the following command to install the Gemini CLI globally using npm:
+        ```bash
+        npm install -g @google/gemini-cli
+        ```
+        This command downloads and installs the latest version of `@google/gemini-cli` from the npm registry, making the `gemini` command available from any directory on your system.
+    3.  **Authenticate:** After the installation is complete, run `gemini` in your terminal. You will be prompted to authenticate with a Google service. Select "Login with Google" and follow the on-screen instructions to sign in with your Google account. This authentication grants you access to the Gemini API.
 
+2.  **GitHub CLI**
+
+    Install the GitHub CLI from [https://cli.github.com/](https://cli.github.com/).
 
 ## How to Use
 
-TODO:
+There are a few ways to integrate this MCP with your Gemini agent.
 
+### Local Project Integration
 
+If you are working within this project's directory, you can configure your agent to use the scripts directly. Create or update the `.gemini/settings.json` file in your project's root with the following configuration:
+
+```json
+{
+    "mcpServers": {
+        "my-git-utils": {
+            "command": "python3",
+            "args": [
+                "src/tools.py"
+            ]
+        }
+    }
+}
+```
+
+After saving the file, restart the Gemini CLI for the changes to take effect.
+
+### Global Installation (Recommended)
+
+To make the MCP available globally, you can add the configuration to your global Gemini CLI settings.
+
+1.  **Place the project in a permanent location:**
+    Move or copy this project to a directory where you intend to keep it, for example: `~/documents/code/PR-description-generator`.
+
+2.  **Update your global settings:**
+    Create or edit the global Gemini CLI settings file at `~/.gemini/settings.json` and add the following, replacing `/path/to/your/project` with the absolute path to the project's directory:
+
+    ```json
+    {
+        "mcpServers": {
+            "my-git-utils": {
+                "command": "python3",
+                "args": [
+                    "/path/to/your/project/src/tools.py"
+                ]
+            }
+        }
+    }
+    ```
+
+3.  **Restart the Gemini CLI:**
+    For the changes to take effect, you need to restart the Gemini CLI.
 
 ## Running locally
 
@@ -29,17 +81,17 @@ To set up the environment for local development, follow these steps:
 
 1.  **Create a virtual environment:**
     ```bash
-    python3 -m venv venv
+    python3 -m venv .venv
     ```
 
 2.  **Activate the virtual environment:**
     -   On macOS/Linux:
         ```bash
-        source venv/bin/activate
+        source .venv/bin/activate
         ```
     -   On Windows:
         ```bash
-        .\venv\Scripts\activate
+        .venv\Scripts\activate
         ```
 
 3.  **Install the required dependencies:**
