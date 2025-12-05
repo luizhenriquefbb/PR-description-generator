@@ -124,3 +124,8 @@ To generate a commit message for your currently staged changes, use the `generat
 Generate a concise and descriptive commit message for the currently staged changes.
 The commit message should follow the same style and format as the previous commits.
 ```
+
+
+## Contributors
+
+- [Luiz Barros](https://github.com/luizfelipecbarros)
