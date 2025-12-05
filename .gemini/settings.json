@@ -1,0 +1,10 @@
+{
+    "mcpServers": {
+        "my-git-utils": {
+            "command": "python",
+            "args": [
+                "src/tools.py"
+            ]
+        }
+    }
+}

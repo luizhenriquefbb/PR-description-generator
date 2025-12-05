@@ -7,10 +7,15 @@ CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 BASE_BRANCH=${1:-origin/main}
 TARGET_BRANCH=${2:-$CURRENT_BRANCH}
 
-# get the diff between the two branches
-git diff $BASE_BRANCH $TARGET_BRANCH >$ROOT_FOLDER/diff.txt
+# check if temp/ folder exists, if not create it
+if [ ! -d $ROOT_FOLDER/temp ]; then
+    mkdir $ROOT_FOLDER/temp
+fi
 
-echo "Diff between $BASE_BRANCH and $TARGET_BRANCH saved to $ROOT_FOLDER/diff.txt"
+# get the diff between the two branches
+git diff $BASE_BRANCH $TARGET_BRANCH >$ROOT_FOLDER/temp/diff.txt
+
+echo "Diff between $BASE_BRANCH and $TARGET_BRANCH saved to $ROOT_FOLDER/temp/diff.txt"
 
 if [ $? -ne 0 ]; then
     echo "Failed to get the diff between $BASE_BRANCH and $TARGET_BRANCH."
